@@ -1,0 +1,12 @@
+spring:
+  data:
+    mongodb:
+      host: ${spring_data_mongodb_host}
+      port: ${spring_data_mongodb_port}
+      database: ${spring_data_mongodb_database}
+      username: ${spring_data_mongo_user}
+      password: ${spring_data_mongo_password}
+      authentication-database: admin
+  jpa:
+    hibernate:
+      ddl-auto: update

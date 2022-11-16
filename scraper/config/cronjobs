@@ -1,0 +1,4 @@
+0 0 * * * node /app/carrefour.js /var/output/ > /proc/1/fd/1 2>/proc/1/fd/2
+0 0 * * * node /app/geant.js /var/output/ > /proc/1/fd/1 2>/proc/1/fd/2
+0 0 * * * node /app/monoprix.js /var/output/ > /proc/1/fd/1 2>/proc/1/fd/2
+0 0 * * * node /app/aziza.js /var/output/ > /proc/1/fd/1 2>/proc/1/fd/2

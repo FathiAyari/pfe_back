@@ -1,0 +1,77 @@
+version: "3.9"
+services:
+  mariadb:
+    image: mariadb
+    volumes:
+      - ./data/mariadb:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_USER_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+  mongodb:
+    image: mongo
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
+    volumes:
+      - ./data/mongodb:/data/db
+  scraper:
+    build: scraper
+    volumes:
+      - files:/var/output
+  loader:
+    build: loader
+    depends_on:
+      - mongodb
+      - mariadb
+    environment:
+      - spring_datasource_url=jdbc:mariadb://mariadb:3306/${MARIADB_DATABASE}
+      - spring_datasource_username=root
+      - spring_datasource_password=${MARIADB_USER_PASSWORD}
+      - spring_datasource_driverClassName=org.mariadb.jdbc.Driver
+      - spring_data_mongodb_host=mongodb
+      - spring_data_mongodb_port=27017
+      - spring_data_mongodb_database=${MONGO_DB_NAME}
+      - spring_data_mongo_user=${MONGO_DB_USER}
+      - spring_data_mongo_password=${MONGO_DB_PASSWORD}
+    volumes:
+      - files:/var/input
+  api:
+    build: api
+    depends_on:
+      - mongodb
+      - mariadb
+    environment:
+      - spring_datasource_url=jdbc:mariadb://mariadb:3306/${MARIADB_DATABASE}
+      - spring_datasource_username=root
+      - spring_datasource_password=${MARIADB_USER_PASSWORD}
+      - spring_datasource_driverClassName=org.mariadb.jdbc.Driver
+      - spring_data_mongodb_host=mongodb
+      - spring_data_mongodb_port=27017
+      - spring_data_mongodb_database=${MONGO_DB_NAME}
+      - spring_data_mongo_user=${MONGO_DB_USER}
+      - spring_data_mongo_password=${MONGO_DB_PASSWORD}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    ports:
+      - "8080:8080"
+  data-quality-ai:
+    build: data-quality-ai
+    depends_on:
+      - mongodb
+    environment:
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - AI_MODEL_PATH=./model
+      - TRAIN_DATA_FILE_PATH=./training/training_data.json
+      - MONGO_DB_HOST=mongodb
+      - MONGO_DB_PORT=27017
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_USER=${MONGO_DB_USER}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - DJANGO_ADMIN_USERNAME=${DJANGO_ADMIN_USERNAME}
+      - DJANGO_ADMIN_PASSWORD=${DJANGO_ADMIN_PASSWORD}
+    ports:
+      - "8000:8000"
+volumes:
+  files: { }

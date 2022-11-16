@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  mariadb:
+    ports:
+      - "3306:3306"
+  mongodb:
+    ports:
+      - "27017:27017"
+  data-quality-ai:
+    volumes:
+      - ./data-quality-ai:/app
